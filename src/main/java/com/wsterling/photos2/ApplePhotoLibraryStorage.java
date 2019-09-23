@@ -2,7 +2,6 @@ package com.wsterling.photos2;
 
 /*
 
-
 public class ApplePhotoLibraryStorage implements PhotoStorage {
 
     private final File dir;
