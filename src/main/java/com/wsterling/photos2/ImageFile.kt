@@ -23,6 +23,7 @@ data class ImageFile(val file: File) {
 
     private var dateTime: LocalDateTime? = null
     private var cashedHash: String? = null
+    private var cashedShallowHash: String? = null
 
     fun getDateTime(): LocalDateTime {
 
@@ -40,7 +41,6 @@ data class ImageFile(val file: File) {
                     dateTime = LocalDateTime.parse(strDate!!, formatter)
                 }
             } catch (e: Exception) {
-                //				System.out.println("couldn't find metadata " + file);
             }
 
             if (dateTime == null) {
@@ -52,10 +52,16 @@ data class ImageFile(val file: File) {
 
     fun getHash(): String {
         if (cashedHash == null) {
-            println("WARNING using incompete hash for speed, not suitable if any changes will be made!")
-            cashedHash = FileUtils.hashFile(file, 100000)
+            cashedHash = FileUtils.hashFile(file)
         }
         return cashedHash!!
+    }
+
+    fun getShallowHash(): String {
+        if (cashedShallowHash == null) {
+            cashedShallowHash = FileUtils.hashFile(file, 250000)
+        }
+        return cashedShallowHash!!
     }
 }
 

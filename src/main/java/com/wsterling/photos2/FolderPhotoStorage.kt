@@ -291,8 +291,8 @@ private val targetFolderFilter = object: FileFilter {
 
 fun main(args: Array<String>) {
 
-//    val storage = MonthlyPhotoStorage(File("/Users/will/Dropbox/Photos"), true)
-    val storage = MonthlyPhotoStorage(File("/Volumes/Photos"), true)
+    val storage = MonthlyPhotoStorage(File("/Users/will/Dropbox/Photos"), true)
+//    val storage = MonthlyPhotoStorage(File("/Volumes/Photos"), true)
     storage.indexFolders(FileFilter {true})
     storage.findAndFixDuplicates()
 }

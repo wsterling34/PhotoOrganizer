@@ -15,7 +15,6 @@ public class DateUtils {
 	}
 	
 	public static int abbrevToMonth(String s) {
-		
 		for (int i=0; i<months.length; i++) {
 			if (months[i].contentEquals(s)) {
 				return i+1;

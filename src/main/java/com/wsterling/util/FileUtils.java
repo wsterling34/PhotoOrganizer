@@ -1,11 +1,12 @@
 package com.wsterling.util;
 
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,17 +20,7 @@ public class FileUtils {
 
     private static final int inputStreamBufferSize = 1024 * 1024;
     private static final int readByteArraySize = 8192;
-    private static final String hashAlgorithm = "MD5";
-
-    private static final MessageDigest md;
-
-    static {
-        try {
-            md = MessageDigest.getInstance(hashAlgorithm);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("cannot initialize hash function", e);
-        }
-    }
+    static HashFunction hashFunction = Hashing.murmur3_128(9);
 
     public static String hashFile(final File file) {
         return hashFile(file, Long.MAX_VALUE);
@@ -37,21 +28,24 @@ public class FileUtils {
 
     public static String hashFile(final File file, long maxBytesToHash)  {
         try {
+            Hasher hasher = hashFunction.newHasher();
             InputStream is = new BufferedInputStream(new FileInputStream(file), inputStreamBufferSize);
             byte[] bytes = new byte[readByteArraySize];
             int read;
             long totalRead = 0;
             while ((read = is.read(bytes)) != -1) {
                 totalRead += read;
+                int bytesEnd;
                 if (totalRead > maxBytesToHash) {
-                    int trunRead = read - ((int) (totalRead - maxBytesToHash));
-                    md.update(bytes, 0, trunRead);
+                    bytesEnd = read - ((int) (totalRead - maxBytesToHash));
+                    hasher.putBytes(bytes, 0, bytesEnd);
                     break;
                 } else {
-                    md.update(bytes, 0, read);
+                    bytesEnd = read;
+                    hasher.putBytes(bytes, 0, bytesEnd);
                 }
             }
-            byte[] hashBytes = md.digest();
+            byte[] hashBytes = hasher.hash().asBytes();
             is.close();
             return BinaryUtils.encodeAsString(hashBytes);
         } catch(IOException e) {
